@@ -14,6 +14,9 @@ import {
   InputWrapper,
   Tile,
   Card,
+  Banner,
+  BannerCarousel,
+  Header,
 } from './components';
 
 function getDeviceInfo() {
@@ -61,6 +64,9 @@ export {
   InputWrapper,
   Tile,
   Card,
+  Banner,
+  BannerCarousel,
+  Header,
 };
 
 export type { ConnectionInfo } from './NativeNetworkMonitor';
