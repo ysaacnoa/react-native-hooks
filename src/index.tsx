@@ -4,6 +4,17 @@ import NativeSecureStorage, {
   type KeyStorage,
   type SetKeyStorage,
 } from './NativeSecureStorage';
+import { theme } from './theme';
+import {
+  AlertModal,
+  Button,
+  Dropdown,
+  InputBase,
+  InputText,
+  InputWrapper,
+  Tile,
+  Card,
+} from './components';
 
 function getDeviceInfo() {
   return NativeHooks.getDeviceInfo();
@@ -41,7 +52,17 @@ export {
   getAllKeys,
   clearStorage,
   getConnectionInfo,
+  theme,
+  AlertModal,
+  Button,
+  Dropdown,
+  InputBase,
+  InputText,
+  InputWrapper,
+  Tile,
+  Card,
 };
 
 export type { ConnectionInfo } from './NativeNetworkMonitor';
 export type { KeyStorage, SetKeyStorage } from './NativeSecureStorage';
+export type { Theme } from './theme/index';
