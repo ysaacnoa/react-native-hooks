@@ -8,6 +8,7 @@ export interface TileProps {
   date: string;
   type: 'income' | 'expense';
   category: string;
+  testID?: string;
 }
 
 const formatDate = (dateString: string) =>
@@ -40,31 +41,43 @@ export const Tile = ({
   date,
   type,
   category,
+  testID,
 }: TileProps) => {
   const colors = getColors(type);
+  const baseId = testID ?? 'tile';
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={`${baseId}-container`}>
       <View style={styles.column1}>
         <Text
           style={[
             styles.category,
             { color: colors.text, backgroundColor: colors.background },
           ]}
+          testID={`${baseId}-category`}
         >
           {category}
         </Text>
       </View>
 
       <View style={styles.column2}>
-        <Text style={styles.description} numberOfLines={1}>
+        <Text
+          style={styles.description}
+          numberOfLines={1}
+          testID={`${baseId}-description`}
+        >
           {description}
         </Text>
-        <Text style={styles.date}>{formatDate(date)}</Text>
+        <Text style={styles.date} testID={`${baseId}-date`}>
+          {formatDate(date)}
+        </Text>
       </View>
 
       <View style={styles.column3}>
-        <Text style={[styles.amount, { color: colors.text }]}>
+        <Text
+          style={[styles.amount, { color: colors.text }]}
+          testID={`${baseId}-amount`}
+        >
           {formatAmount(amount, type)}
         </Text>
       </View>
@@ -72,9 +85,6 @@ export const Tile = ({
   );
 };
 
-/* ------------------------------
-  🧱 STYLES
-------------------------------- */
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
