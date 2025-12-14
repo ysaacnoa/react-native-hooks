@@ -39,4 +39,26 @@ describe('BannerCarousel', () => {
 
     expect(scrollView).toBeTruthy();
   });
+
+  it('no renderiza nada si banners es undefined o vacío', () => {
+    const { queryByTestId } = render(<BannerCarousel />);
+    expect(queryByTestId('banner-carousel-container')).toBeNull();
+
+    const { queryByTestId: queryEmpty } = render(
+      <BannerCarousel banners={[]} />
+    );
+    expect(queryEmpty('banner-carousel-container')).toBeNull();
+  });
+
+  it('aplica baseId correctamente en testID', () => {
+    const { getByTestId } = render(
+      <BannerCarousel
+        banners={[{ id: '1', image: 'img', url: 'url' }]}
+        testID="my-carousel"
+      />
+    );
+    expect(getByTestId('my-carousel-container')).toBeTruthy();
+    expect(getByTestId('my-carousel-scrollview')).toBeTruthy();
+    expect(getByTestId('my-carousel-banner-1')).toBeTruthy();
+  });
 });
