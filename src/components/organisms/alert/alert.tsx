@@ -5,35 +5,49 @@ import { theme } from '../../../theme';
 
 interface AlertModalProps {
   isVisible: boolean;
-  icon: ReactNode;
+  iconChild?: ReactNode;
   title: string;
   description: string;
   buttonText?: string;
   onClose: () => void;
+  testID?: string;
 }
 
 export const AlertModal = ({
   isVisible,
-  icon,
+  iconChild,
   title,
   description,
   buttonText = 'Aceptar',
   onClose,
+  testID,
 }: AlertModalProps) => {
+  const baseId = testID ?? 'alert-modal';
+
   return (
     <Modal
       visible={isVisible}
       transparent
       animationType="fade"
       onRequestClose={onClose}
+      testID={baseId}
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          {icon}
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.description}>{description}</Text>
+      <View style={styles.overlay} testID={`${baseId}-overlay`}>
+        <View style={styles.container} testID={`${baseId}-container`}>
+          {iconChild && iconChild}
+          <Text style={styles.title} testID={`${baseId}-title`}>
+            {title}
+          </Text>
+          <Text style={styles.description} testID={`${baseId}-description`}>
+            {description}
+          </Text>
 
-          <Button label={buttonText} onPress={onClose} variant="filled" />
+          <Button
+            label={buttonText}
+            onPress={onClose}
+            variant="filled"
+            testID={`${baseId}-button`}
+          />
         </View>
       </View>
     </Modal>

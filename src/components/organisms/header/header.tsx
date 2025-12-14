@@ -1,14 +1,15 @@
 import type { ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { theme } from 'react-native-hooks';
+import { theme } from '../../../theme';
 
-interface HomeHeaderProps {
+interface HeaderProps {
   title?: string;
   iconChild?: ReactNode;
   iconBackChild?: ReactNode;
   paddingTop?: number;
   canGoBack?: boolean;
   onBackPress?: () => void;
+  testID?: string;
 }
 
 export function Header({
@@ -18,20 +19,38 @@ export function Header({
   paddingTop = 0,
   canGoBack = false,
   onBackPress,
-}: HomeHeaderProps) {
+  testID,
+}: HeaderProps) {
+  const baseId = testID ?? 'header';
+
   return (
-    <View style={[styles.container, { paddingTop }]}>
+    <View
+      style={[styles.container, { paddingTop }]}
+      testID={`${baseId}-container`}
+    >
       {canGoBack && (
         <TouchableOpacity
           style={styles.backButton}
           onPress={onBackPress}
           activeOpacity={0.7}
+          testID={`${baseId}-back-button`}
         >
-          {iconBackChild || <Text style={styles.backIcon}>←</Text>}
+          {iconBackChild || (
+            <Text style={styles.backIcon} testID={`${baseId}-back-icon`}>
+              ←
+            </Text>
+          )}
         </TouchableOpacity>
       )}
-      {iconChild && !canGoBack && <View style={styles.icon}>{iconChild}</View>}
-      <Text style={[styles.title, canGoBack && styles.titleWithBack]}>
+      {iconChild && !canGoBack && (
+        <View style={styles.icon} testID={`${baseId}-icon`}>
+          {iconChild}
+        </View>
+      )}
+      <Text
+        style={[styles.title, canGoBack && styles.titleWithBack]}
+        testID={`${baseId}-title`}
+      >
         {title || ''}
       </Text>
     </View>

@@ -1,20 +1,40 @@
 import { type ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { theme } from 'react-native-hooks';
+import { theme } from '../../../theme';
 
 interface CardProps {
   title: string;
   description: string;
   iconChild: ReactNode;
   onPress: () => void;
+  testID?: string;
 }
 
-export function Card({ title, description, iconChild, onPress }: CardProps) {
+export function Card({
+  title,
+  description,
+  iconChild,
+  onPress,
+  testID,
+}: CardProps) {
+  const baseId = testID ?? 'card';
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.iconCircle}>{iconChild}</View>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description}>{description}</Text>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.7}
+      testID={`${baseId}-touchable`}
+    >
+      <View style={styles.iconCircle} testID={`${baseId}-icon`}>
+        {iconChild}
+      </View>
+      <Text style={styles.title} testID={`${baseId}-title`}>
+        {title}
+      </Text>
+      <Text style={styles.description} testID={`${baseId}-description`}>
+        {description}
+      </Text>
     </TouchableOpacity>
   );
 }
