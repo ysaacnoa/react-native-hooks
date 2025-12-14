@@ -1,12 +1,13 @@
 import { TouchableOpacity, Image, StyleSheet, Linking } from 'react-native';
-import { theme } from 'react-native-hooks';
+import { theme } from '../../../theme';
 
 interface BannerProps {
   image: string;
   url: string;
+  testID?: string;
 }
 
-export function Banner({ image, url }: BannerProps) {
+export function Banner({ image, url, testID }: BannerProps) {
   const handlePress = () => {
     Linking.openURL(url);
   };
@@ -16,11 +17,17 @@ export function Banner({ image, url }: BannerProps) {
       style={styles.bannerWrapper}
       onPress={handlePress}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel="Banner"
+      testID={testID ?? 'banner-touchable'}
     >
       <Image
         source={{ uri: image }}
         style={styles.bannerImage}
         resizeMode="cover"
+        accessibilityRole="image"
+        accessibilityLabel="Banner image"
+        testID="banner-image"
       />
     </TouchableOpacity>
   );

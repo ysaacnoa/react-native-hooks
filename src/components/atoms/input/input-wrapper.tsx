@@ -8,6 +8,7 @@ interface Props {
   right?: ReactNode;
   focused?: boolean;
   error?: boolean;
+  testID?: string;
 }
 
 export const InputWrapper = ({
@@ -16,6 +17,7 @@ export const InputWrapper = ({
   right,
   focused,
   error,
+  testID,
 }: Props) => {
   return (
     <View
@@ -24,6 +26,7 @@ export const InputWrapper = ({
         focused && styles.focused,
         error && styles.error,
       ]}
+      testID={testID ?? 'input-wrapper-container'}
     >
       {left && <View style={styles.slot}>{left}</View>}
       <View style={styles.input}>{children}</View>

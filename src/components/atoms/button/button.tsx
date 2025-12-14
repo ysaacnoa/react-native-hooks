@@ -5,12 +5,14 @@ import {
   type GestureResponderEvent,
 } from 'react-native';
 import { theme } from '../../../theme';
+import type { TouchableOpacityProps } from 'react-native';
 
-interface ButtonProps {
+interface ButtonProps extends TouchableOpacityProps {
   label: string;
   onPress?: (event: GestureResponderEvent) => void;
-  variant: 'filled' | 'contrast';
+  variant?: 'filled' | 'contrast';
   disabled?: boolean;
+  testID?: string;
 }
 
 const buttonVariants = {
@@ -29,6 +31,7 @@ export const Button = ({
   onPress,
   disabled = false,
   variant = 'filled',
+  testID,
 }: ButtonProps) => {
   const variantStyle = buttonVariants[variant];
 
@@ -42,6 +45,10 @@ export const Button = ({
       onPress={onPress}
       activeOpacity={0.8}
       disabled={disabled}
+      testID={testID ?? 'button-touchable'}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled }}
     >
       <Text style={[styles.labelBase, { color: variantStyle.textColor }]}>
         {label}
