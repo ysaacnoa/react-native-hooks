@@ -1,6 +1,5 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
-import { theme } from 'react-native-hooks';
+import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { theme } from '../../../theme';
 import { Banner } from '../../atoms/banner';
 
 interface BannerData {
@@ -9,56 +8,40 @@ interface BannerData {
   url: string;
 }
 
-interface BannerCarouselProps {
+interface BannerSliderProps {
   banners?: BannerData[];
-  showIndicators?: boolean;
+  testID?: string;
 }
 
-export function BannerCarousel({
-  banners,
-  showIndicators = true,
-}: BannerCarouselProps) {
-  const scrollViewRef = React.useRef<any>(null);
-  const [activeIndex, setActiveIndex] = React.useState(0);
+const SCREEN_WIDTH = Dimensions.get('window')?.width ?? 360; // fallback en Jest
+const BANNER_WIDTH = SCREEN_WIDTH * 0.75;
+const BANNER_MARGIN = 12;
 
-  if (!banners || banners.length === 0) {
-    return null;
-  }
+export function BannerCarousel({ banners, testID }: BannerSliderProps) {
+  if (!banners || banners.length === 0) return null;
 
-  const handleScroll = (event: any) => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const currentIndex = Math.round(contentOffsetX / 400);
-    setActiveIndex(currentIndex);
-  };
+  const baseId = testID ?? 'banner-carousel';
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={`${baseId}-container`}>
       <ScrollView
-        ref={scrollViewRef}
         horizontal
-        pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={32}
+        snapToInterval={BANNER_WIDTH + BANNER_MARGIN * 2}
+        decelerationRate="fast"
+        contentContainerStyle={{ paddingHorizontal: BANNER_MARGIN }}
+        testID={`${baseId}-scrollview`}
       >
         {banners.map((banner) => (
-          <Banner key={banner.id} image={banner.image} url={banner.url} />
+          <View
+            key={banner.id}
+            style={{ width: BANNER_WIDTH, marginHorizontal: BANNER_MARGIN }}
+            testID={`${baseId}-banner-${banner.id}`}
+          >
+            <Banner image={banner.image} url={banner.url} />
+          </View>
         ))}
       </ScrollView>
-
-      {showIndicators && (
-        <View style={styles.indicatorContainer}>
-          {banners.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.indicator,
-                activeIndex === index && styles.indicatorActive,
-              ]}
-            />
-          ))}
-        </View>
-      )}
     </View>
   );
 }
@@ -66,21 +49,5 @@ export function BannerCarousel({
 const styles = StyleSheet.create({
   container: {
     paddingVertical: theme.spacing.lg,
-  },
-  indicatorContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingVertical: theme.spacing.md,
-    gap: theme.spacing.sm,
-  },
-  indicator: {
-    width: 8,
-    height: 8,
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.border,
-  },
-  indicatorActive: {
-    backgroundColor: theme.colors.primary,
-    width: 24,
   },
 });

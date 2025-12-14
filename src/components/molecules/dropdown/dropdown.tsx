@@ -20,6 +20,7 @@ interface SimpleDropdownProps {
   value: string;
   options: DropdownOption[];
   onChange: (value: string) => void;
+  testID?: string;
 }
 
 export const Dropdown = ({
@@ -27,6 +28,7 @@ export const Dropdown = ({
   value,
   options,
   onChange,
+  testID,
 }: SimpleDropdownProps) => {
   const [open, setOpen] = useState(false);
 
@@ -35,19 +37,40 @@ export const Dropdown = ({
 
   return (
     <>
-      {label && <Text style={styles.title}>{label}</Text>}
+      {label && (
+        <Text
+          style={styles.title}
+          testID={testID ? `${testID}-label` : 'dropdown-label'}
+        >
+          {label}
+        </Text>
+      )}
 
       <Pressable
         style={styles.trigger}
         onPress={() => setOpen(true)}
         accessibilityRole="button"
+        testID={testID ? `${testID}-trigger` : 'dropdown-trigger'} // ID del trigger
       >
-        <Text style={styles.value}>{selectedLabel}</Text>
+        <Text
+          style={styles.value}
+          testID={testID ? `${testID}-value` : 'dropdown-value'}
+        >
+          {selectedLabel}
+        </Text>
         <Text style={styles.arrow}>▼</Text>
       </Pressable>
 
-      <Modal visible={open} transparent animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setOpen(false)}>
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        testID={testID ? `${testID}-modal` : 'dropdown-modal'} // ID del modal
+      >
+        <TouchableWithoutFeedback
+          onPress={() => setOpen(false)}
+          testID={testID ? `${testID}-overlay` : 'dropdown-overlay'} // ID del overlay
+        >
           <View style={styles.overlay}>
             <View style={styles.dropdown}>
               <FlatList
@@ -60,6 +83,11 @@ export const Dropdown = ({
                       onChange(item.value);
                       setOpen(false);
                     }}
+                    testID={
+                      testID
+                        ? `${testID}-option-${item.value}`
+                        : `dropdown-option-${item.value}`
+                    } // ID de cada opción
                   >
                     <Text
                       style={[
