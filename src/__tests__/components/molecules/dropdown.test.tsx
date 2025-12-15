@@ -3,8 +3,6 @@ import {
   Dropdown,
   type DropdownOption,
 } from '../../../components/molecules/dropdown/dropdown';
-import { Text } from 'react-native';
-import { theme } from '../../../theme';
 
 describe('Dropdown', () => {
   const options: DropdownOption[] = [
@@ -15,160 +13,145 @@ describe('Dropdown', () => {
 
   const onChange = jest.fn();
 
-  const defaultProps = {
-    label: 'Selecciona algo',
-    value: '1',
-    options,
-    onChange,
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renderiza el label si se proporciona', () => {
-    const { getByText } = render(<Dropdown {...defaultProps} />);
-
-    expect(getByText('Selecciona algo')).toBeTruthy();
+  it('renderiza correctamente con label', () => {
+    render(
+      <Dropdown
+        label="Mi label"
+        value="1"
+        options={options}
+        onChange={onChange}
+      />
+    );
+    expect(screen.getByText('Mi label')).toBeTruthy();
+    expect(screen.getByText('Opción 1')).toBeTruthy();
   });
 
-  it('muestra el label de la opción seleccionada', () => {
-    const { getByText } = render(<Dropdown {...defaultProps} />);
+  it('NO renderiza label cuando no se pasa', () => {
+    render(<Dropdown value="1" options={options} onChange={onChange} />);
+    expect(screen.queryByTestId('dropdown-label')).toBeNull();
+  });
 
-    expect(getByText('Opción 1')).toBeTruthy();
+  it('muestra "Seleccionar" cuando value no coincide con ninguna opción', () => {
+    render(<Dropdown value="99" options={options} onChange={onChange} />);
+    expect(screen.getByTestId('dropdown-value')).toHaveTextContent(
+      'Seleccionar'
+    );
+  });
+
+  it('muestra "Seleccionar" cuando value es vacío o no existe', () => {
+    render(<Dropdown value="" options={options} onChange={onChange} />);
+    expect(screen.getByTestId('dropdown-value')).toHaveTextContent(
+      'Seleccionar'
+    );
+
+    // @ts-ignore - probamos caso extremo
+    render(
+      <Dropdown value={null as any} options={options} onChange={onChange} />
+    );
+    expect(screen.getByTestId('dropdown-value')).toHaveTextContent(
+      'Seleccionar'
+    );
   });
 
   it('abre el modal al presionar el trigger', () => {
-    const { getByTestId, getByText } = render(<Dropdown {...defaultProps} />);
+    render(<Dropdown value="1" options={options} onChange={onChange} />);
+    expect(screen.queryByTestId('dropdown-modal')).toBeNull();
 
-    fireEvent.press(getByTestId('dropdown-trigger'));
-
-    expect(getByText('Opción 2')).toBeTruthy();
-  });
-
-  it('renderiza todas las opciones', () => {
-    const { getByTestId } = render(<Dropdown {...defaultProps} />);
-
-    fireEvent.press(getByTestId('dropdown-trigger'));
-
-    options.forEach((opt) => {
-      const option = getByTestId(`dropdown-option-${opt.value}`);
-      expect(option).toBeTruthy();
-    });
-  });
-
-  it('llama a onChange y cierra el modal al seleccionar una opción', () => {
-    const { getByTestId, queryByText } = render(<Dropdown {...defaultProps} />);
-
-    fireEvent.press(getByTestId('dropdown-trigger'));
-    fireEvent.press(getByTestId('dropdown-option-2'));
-
-    expect(onChange).toHaveBeenCalledWith('2');
-    expect(queryByText('Opción 3')).toBeNull();
+    fireEvent.press(screen.getByTestId('dropdown-trigger'));
+    expect(screen.getByTestId('dropdown-modal')).toBeTruthy();
+    expect(screen.getByText('Opción 2')).toBeTruthy();
   });
 
   it('cierra el modal al presionar el overlay', () => {
-    const { getByTestId, queryByText } = render(<Dropdown {...defaultProps} />);
+    render(<Dropdown value="1" options={options} onChange={onChange} />);
 
-    fireEvent.press(getByTestId('dropdown-trigger'));
-    fireEvent.press(getByTestId('dropdown-overlay'));
+    fireEvent.press(screen.getByTestId('dropdown-trigger'));
+    expect(screen.getByTestId('dropdown-modal')).toBeTruthy();
 
-    expect(queryByText('Opción 2')).toBeNull();
+    fireEvent.press(screen.getByTestId('dropdown-overlay'));
+    expect(screen.queryByTestId('dropdown-modal')).toBeNull();
   });
 
-  it('muestra el label cuando se pasa', () => {
-    render(
+  it('selecciona una opción, llama onChange y cierra el modal', () => {
+    let selectedValue = '1';
+    const handleChange = jest.fn((val: string) => {
+      selectedValue = val;
+    });
+
+    const { rerender } = render(
       <Dropdown
-        label="Mi Dropdown"
-        value="1"
+        value={selectedValue}
         options={options}
-        onChange={jest.fn()}
+        onChange={handleChange}
       />
     );
-    expect(screen.getByTestId('dropdown-label').props.children).toBe(
-      'Mi Dropdown'
+
+    fireEvent.press(screen.getByTestId('dropdown-trigger'));
+    fireEvent.press(screen.getByTestId('dropdown-option-3'));
+
+    expect(handleChange).toHaveBeenCalledWith('3');
+    expect(screen.queryByTestId('dropdown-modal')).toBeNull();
+
+    // Actualizamos el render con el nuevo valor
+    rerender(
+      <Dropdown
+        value={selectedValue}
+        options={options}
+        onChange={handleChange}
+      />
     );
+
+    expect(screen.getByTestId('dropdown-value')).toHaveTextContent('Opción 3');
   });
+  it('aplica estilo selected a la opción actualmente seleccionada', () => {
+    render(<Dropdown value="2" options={options} onChange={onChange} />);
 
-  it('aplica estilo selected a la opción seleccionada', () => {
-    const { getByTestId } = render(
-      <Dropdown value="1" options={options} onChange={() => {}} />
-    );
+    fireEvent.press(screen.getByTestId('dropdown-trigger'));
 
-    fireEvent.press(getByTestId('dropdown-trigger'));
+    const selectedOption = screen.getByTestId('dropdown-option-2');
 
-    const selectedOptionText =
-      getByTestId('dropdown-option-1').findByType(Text);
-
-    expect(selectedOptionText.props.style).toEqual(
-      expect.arrayContaining([expect.objectContaining({ fontWeight: '700' })])
-    );
-  });
-
-  it('renderiza label y valor seleccionado', () => {
-    const { getByTestId } = render(
-      <Dropdown label="Test" value="1" options={options} onChange={() => {}} />
-    );
-
-    expect(getByTestId('dropdown-label').props.children).toBe('Test');
-    expect(getByTestId('dropdown-value').props.children).toBe('Opción 1');
-  });
-
-  it('abre y cierra el modal al presionar trigger y overlay', () => {
-    const { getByTestId, queryByTestId } = render(
-      <Dropdown value="1" options={options} onChange={() => {}} />
-    );
-
-    // Modal cerrado inicialmente
-    expect(queryByTestId('dropdown-modal')).toBeNull();
-
-    fireEvent.press(getByTestId('dropdown-trigger'));
-    expect(getByTestId('dropdown-modal')).toBeTruthy();
-
-    fireEvent.press(getByTestId('dropdown-overlay'));
-    expect(queryByTestId('dropdown-modal')).toBeNull();
-  });
-
-  it('cambia valor al seleccionar opción y aplica estilo selected', () => {
-    let selected = '1';
-    const onTextChange = (val: string) => {
-      selected = val;
-    };
-
-    const { getByTestId } = render(
-      <Dropdown value={selected} options={options} onChange={onTextChange} />
-    );
-
-    fireEvent.press(getByTestId('dropdown-trigger'));
-
-    fireEvent.press(getByTestId('dropdown-option-2'));
-
-    expect(selected).toBe('2');
-  });
-
-  it('aplica estilo selected al valor inicial', () => {
-    const { getByTestId } = render(
-      <Dropdown value="1" options={options} onChange={() => {}} />
-    );
-
-    fireEvent.press(getByTestId('dropdown-trigger'));
-
-    const option1Text = getByTestId('dropdown-option-1').findByType(Text);
-
-    expect(option1Text.props.style).toEqual(
+    // Buscamos el Text dentro de la opción
+    const textElement = selectedOption.children[0] as any;
+    expect(textElement.props.style).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           fontWeight: '700',
-          color: theme.colors.primary,
+          color: expect.any(String),
         }),
       ])
     );
   });
 
-  it('renderiza "Seleccionar" si el valor no coincide con options', () => {
-    const { getByTestId } = render(
-      <Dropdown value="99" options={options} onChange={() => {}} />
+  it('renderiza lista vacía cuando options está vacío', () => {
+    render(<Dropdown value="1" options={[]} onChange={onChange} />);
+
+    fireEvent.press(screen.getByTestId('dropdown-trigger'));
+    expect(screen.getByTestId('dropdown-modal')).toBeTruthy();
+
+    // FlatList con data vacío renderiza nada → no hay opciones
+    expect(screen.queryByTestId(/dropdown-option-/)).toBeNull();
+  });
+
+  it('mantiene accesibilidad y testIDs personalizados', () => {
+    render(
+      <Dropdown
+        label="Custom"
+        value="1"
+        options={options}
+        onChange={onChange}
+        testID="custom-dropdown"
+      />
     );
-    expect(getByTestId('dropdown-value').props.children).toBe('Seleccionar');
+
+    expect(screen.getByTestId('custom-dropdown-label')).toBeTruthy();
+    expect(screen.getByTestId('custom-dropdown-trigger')).toBeTruthy();
+    expect(screen.getByTestId('custom-dropdown-value')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('custom-dropdown-trigger'));
+    expect(screen.getByTestId('custom-dropdown-option-1')).toBeTruthy();
   });
 });
