@@ -1,6 +1,8 @@
 export { Button } from './atoms/button';
 export { InputBase, InputWrapper, InputText } from './atoms/input';
 export { Banner } from './atoms/banner';
+export { BubbleMessage } from './atoms/bubble-message';
+export { Item } from './atoms/item';
 
 export { BannerCarousel } from './molecules/banner-carousel';
 export { Dropdown } from './molecules/dropdown';

@@ -27,4 +27,4 @@ export const colors = {
 
   white: colorTokens.white,
   black: colorTokens.black,
-};
+} as const;

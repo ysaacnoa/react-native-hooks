@@ -4,7 +4,7 @@ import NativeSecureStorage, {
   type KeyStorage,
   type SetKeyStorage,
 } from './NativeSecureStorage';
-import { theme } from './theme';
+import { theme, colors, spacing, radius, typography } from './theme';
 import {
   AlertModal,
   Button,
@@ -17,7 +17,10 @@ import {
   Banner,
   BannerCarousel,
   Header,
+  BubbleMessage,
+  Item,
 } from './components';
+import { withOpacity } from './shared/opacity';
 
 function getDeviceInfo() {
   return NativeHooks.getDeviceInfo();
@@ -56,6 +59,10 @@ export {
   clearStorage,
   getConnectionInfo,
   theme,
+  spacing,
+  colors,
+  radius,
+  typography,
   AlertModal,
   Button,
   Dropdown,
@@ -67,6 +74,9 @@ export {
   Banner,
   BannerCarousel,
   Header,
+  BubbleMessage,
+  Item,
+  withOpacity,
 };
 
 export type { ConnectionInfo } from './NativeNetworkMonitor';

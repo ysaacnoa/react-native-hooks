@@ -1,3 +1,4 @@
+// BannerCarousel.tsx
 import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { theme } from '../../../theme';
 import { Banner } from '../../atoms/banner';
@@ -8,34 +9,42 @@ interface BannerData {
   url: string;
 }
 
-interface BannerSliderProps {
+interface BannerCarouselProps {
   banners?: BannerData[];
   testID?: string;
 }
 
-const SCREEN_WIDTH = Dimensions.get('window')?.width ?? 360; // fallback en Jest
-const BANNER_WIDTH = SCREEN_WIDTH * 0.75;
-const BANNER_MARGIN = 12;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const BANNER_WIDTH = SCREEN_WIDTH * 0.8; // 80% del ancho
+const BANNER_HEIGHT = BANNER_WIDTH * 0.56; // Ratio 16:9 → 180px aprox en iPhone
+// const BANNER_HEIGHT = BANNER_WIDTH * 0.5;       // Ratio 2:1 → más cuadrado
+// const BANNER_HEIGHT = BANNER_WIDTH * 0.65;      // Ratio más alto si quieres
 
-export function BannerCarousel({ banners, testID }: BannerSliderProps) {
-  if (!banners || banners.length === 0) return null;
+const ITEM_SPACING = theme.spacing.lg;
+
+export function BannerCarousel({ banners = [], testID }: BannerCarouselProps) {
+  if (banners.length === 0) return null;
 
   const baseId = testID ?? 'banner-carousel';
+  const snapInterval = BANNER_WIDTH + ITEM_SPACING;
 
   return (
     <View style={styles.container} testID={`${baseId}-container`}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToInterval={BANNER_WIDTH + BANNER_MARGIN * 2}
+        snapToInterval={snapInterval}
         decelerationRate="fast"
-        contentContainerStyle={{ paddingHorizontal: BANNER_MARGIN }}
+        contentContainerStyle={styles.contentContainer}
         testID={`${baseId}-scrollview`}
       >
-        {banners.map((banner) => (
+        {banners.map((banner, index) => (
           <View
             key={banner.id}
-            style={{ width: BANNER_WIDTH, marginHorizontal: BANNER_MARGIN }}
+            style={[
+              styles.bannerWrapper,
+              index < banners.length - 1 && { marginRight: ITEM_SPACING },
+            ]}
             testID={`${baseId}-banner-${banner.id}`}
           >
             <Banner image={banner.image} url={banner.url} />
@@ -49,5 +58,12 @@ export function BannerCarousel({ banners, testID }: BannerSliderProps) {
 const styles = StyleSheet.create({
   container: {
     paddingVertical: theme.spacing.lg,
+  },
+  contentContainer: {
+    paddingHorizontal: 0,
+  },
+  bannerWrapper: {
+    width: BANNER_WIDTH,
+    height: BANNER_HEIGHT,
   },
 });

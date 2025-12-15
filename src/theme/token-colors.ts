@@ -9,4 +9,4 @@ export const colorTokens = {
   gray300: '#E0E0E1',
   gray400: '#B5B5B7',
   gray600: '#717172',
-};
+} as const;
