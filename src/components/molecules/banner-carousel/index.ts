@@ -1,1 +1,1 @@
-export { BannerCarousel } from './banner-carousel';
+export { Carousel } from './banner-carousel';

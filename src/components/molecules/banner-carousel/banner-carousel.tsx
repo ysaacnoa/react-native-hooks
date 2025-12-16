@@ -1,69 +1,100 @@
-// BannerCarousel.tsx
-import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import {
+  FlatList,
+  View,
+  Dimensions,
+  StyleSheet,
+  type ImageSourcePropType,
+  type ImageErrorEvent,
+  type ImageLoadEvent,
+} from 'react-native';
+
 import { theme } from '../../../theme';
 import { Banner } from '../../atoms/banner';
 
-interface BannerData {
-  id: string;
-  image: string;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const ITEM_WIDTH = SCREEN_WIDTH * 0.85;
+const SIDE_SPACING = (SCREEN_WIDTH - ITEM_WIDTH) / 2;
+const ITEM_SPACING = theme.spacing.lg;
+
+export interface CarouselItem {
+  id: string | number;
+  remoteUrl?: string;
+  localSource?: ImageSourcePropType;
   url: string;
+  defaultSource?: ImageSourcePropType;
 }
 
-interface BannerCarouselProps {
-  banners?: BannerData[];
+interface CarouselProps {
+  data: CarouselItem[];
+  onItemError?: (itemId: string | number, error: ImageErrorEvent) => void;
+  onItemLoad?: (itemId: string | number, event: ImageLoadEvent) => void;
   testID?: string;
 }
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const BANNER_WIDTH = SCREEN_WIDTH * 0.8; // 80% del ancho
-const BANNER_HEIGHT = BANNER_WIDTH * 0.56; // Ratio 16:9 → 180px aprox en iPhone
-// const BANNER_HEIGHT = BANNER_WIDTH * 0.5;       // Ratio 2:1 → más cuadrado
-// const BANNER_HEIGHT = BANNER_WIDTH * 0.65;      // Ratio más alto si quieres
+export function Carousel({
+  data,
+  onItemError,
+  onItemLoad,
+  testID,
+}: CarouselProps) {
+  if (!data || data.length === 0) {
+    return null;
+  }
 
-const ITEM_SPACING = theme.spacing.lg;
+  const renderItem = ({ item }: { item: CarouselItem }) => {
+    const handleError = (error: ImageErrorEvent) => {
+      onItemError?.(item.id, error);
+    };
 
-export function BannerCarousel({ banners = [], testID }: BannerCarouselProps) {
-  if (banners.length === 0) return null;
+    const handleLoad = (event: ImageLoadEvent) => {
+      onItemLoad?.(item.id, event);
+    };
 
-  const baseId = testID ?? 'banner-carousel';
-  const snapInterval = BANNER_WIDTH + ITEM_SPACING;
+    return (
+      <View style={styles.itemContainer}>
+        <Banner
+          remoteUrl={item.remoteUrl}
+          localSource={item.localSource}
+          url={item.url}
+          defaultSource={item.defaultSource}
+          onError={handleError}
+          onLoad={handleLoad}
+          testID={`carousel-item-${item.id}`}
+        />
+      </View>
+    );
+  };
+
+  const renderItemSeparator = () => <View style={styles.separator} />;
 
   return (
-    <View style={styles.container} testID={`${baseId}-container`}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={snapInterval}
-        decelerationRate="fast"
-        contentContainerStyle={styles.contentContainer}
-        testID={`${baseId}-scrollview`}
-      >
-        {banners.map((banner, index) => (
-          <View
-            key={banner.id}
-            style={[
-              styles.bannerWrapper,
-              index < banners.length - 1 && { marginRight: ITEM_SPACING },
-            ]}
-            testID={`${baseId}-banner-${banner.id}`}
-          >
-            <Banner image={banner.image} url={banner.url} />
-          </View>
-        ))}
-      </ScrollView>
-    </View>
+    <FlatList
+      data={data}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id.toString()}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      snapToInterval={ITEM_WIDTH + ITEM_SPACING}
+      snapToAlignment="center"
+      decelerationRate="fast"
+      contentContainerStyle={styles.contentContainer}
+      ItemSeparatorComponent={renderItemSeparator}
+      testID={testID ?? 'carousel'}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingVertical: theme.spacing.lg,
-  },
   contentContainer: {
-    paddingHorizontal: 0,
+    paddingRight: SIDE_SPACING,
   },
-  bannerWrapper: {
-    width: BANNER_WIDTH,
-    height: BANNER_HEIGHT,
+  itemContainer: {
+    width: ITEM_WIDTH,
+    borderRadius: theme.radius.lg,
+    overflow: 'hidden',
+  },
+  separator: {
+    width: ITEM_SPACING,
   },
 });

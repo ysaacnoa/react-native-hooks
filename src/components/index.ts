@@ -4,7 +4,7 @@ export { Banner } from './atoms/banner';
 export { BubbleMessage } from './atoms/bubble-message';
 export { Item } from './atoms/item';
 
-export { BannerCarousel } from './molecules/banner-carousel';
+export { Carousel } from './molecules/banner-carousel';
 export { Dropdown } from './molecules/dropdown';
 
 export { AlertModal } from './organisms/alert';

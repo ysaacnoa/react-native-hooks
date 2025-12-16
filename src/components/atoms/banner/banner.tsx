@@ -1,14 +1,43 @@
-// components/atoms/banner.tsx
-import { TouchableOpacity, Image, StyleSheet, Linking } from 'react-native';
+import {
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Linking,
+  type ImageSourcePropType,
+  type ImageLoadEvent,
+  type ImageErrorEvent,
+} from 'react-native';
+
 import { radius } from '../../../theme';
 
-interface BannerProps {
-  image: string;
+export interface BannerProps {
+  remoteUrl?: string;
+  localSource?: ImageSourcePropType;
   url: string;
   testID?: string;
+  onError?: (error: ImageErrorEvent) => void;
+  onLoad?: (event: ImageLoadEvent) => void;
+  defaultSource?: ImageSourcePropType;
 }
 
-export function Banner({ image, url, testID }: BannerProps) {
+export function Banner({
+  remoteUrl,
+  localSource,
+  url,
+  testID,
+  onError,
+  onLoad,
+  defaultSource,
+}: BannerProps) {
+  const source: ImageSourcePropType | undefined = remoteUrl
+    ? { uri: remoteUrl }
+    : localSource;
+
+  if (!source) {
+    console.warn('Banner: Debes proporcionar remoteUrl o localSource');
+    return null;
+  }
+
   const handlePress = () => {
     Linking.openURL(url);
   };
@@ -20,12 +49,15 @@ export function Banner({ image, url, testID }: BannerProps) {
       activeOpacity={0.8}
       accessibilityRole="button"
       accessibilityLabel="Banner promocional"
-      testID={testID ?? 'banner-touchable'}
+      testID={testID ? `${testID}-touchable` : 'banner-touchable'}
     >
       <Image
-        source={{ uri: image }}
+        source={source}
+        defaultSource={defaultSource}
         style={styles.bannerImage}
         resizeMode="cover"
+        onError={onError}
+        onLoad={onLoad}
         testID="banner-image"
       />
     </TouchableOpacity>
@@ -34,14 +66,11 @@ export function Banner({ image, url, testID }: BannerProps) {
 
 const styles = StyleSheet.create({
   bannerWrapper: {
-    // Eliminamos width, height y marginHorizontal
-    // Ahora ocupa todo el espacio del padre
     borderRadius: radius.lg,
-    overflow: 'hidden', // Necesario para borderRadius en Android
+    overflow: 'hidden',
   },
   bannerImage: {
     width: '100%',
     height: '100%',
-    // Sin borderRadius aquí (ya lo tiene el wrapper)
   },
 });

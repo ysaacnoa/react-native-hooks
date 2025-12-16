@@ -1,4 +1,4 @@
-// App.tsx (actualizado con BannerCarousel)
+// App.tsx
 import { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, TextInput, Button } from 'react-native';
 import {
@@ -6,11 +6,11 @@ import {
   getConnectionInfo,
   getDeviceInfo,
   getItem,
-  Item,
   setItem,
   type ConnectionInfo,
-  BannerCarousel,
+  Item,
 } from 'react-native-hooks';
+import { Carousel } from '../../src/components/molecules/banner-carousel/banner-carousel';
 
 export default function App() {
   const [key, setKey] = useState('');
@@ -29,8 +29,8 @@ export default function App() {
     try {
       await setItem({ key, value });
       setResult(`Saved: ${key}`);
-    } catch (error) {
-      setResult(`Error: ${error}`);
+    } catch (error: any) {
+      setResult(`Error: ${error.message}`);
     }
   };
 
@@ -38,38 +38,43 @@ export default function App() {
     try {
       const data = await getItem({ key });
       setResult(data ? `Value: ${data}` : 'Not found');
-    } catch (error) {
-      setResult(`Error: ${error}`);
+    } catch (error: any) {
+      setResult(`Error: ${error.message}`);
     }
   };
 
+  // === Banners con imágenes locales usando require() directamente ===
   const exampleBanners = [
     {
       id: '1',
-      image: 'https://picsum.photos/800/400?random=1',
-      url: 'https://play-lh.googleusercontent.com/1-hPxafOxdYpYZEOKzNIkSP43HXCNftVJVttoo4ucl7rsMASXW3Xr6GlXURCubE1tA=w7680-h4320-rw',
+      localSource: require('./assets/nestJS.webp'), // ← Ruta real a tu asset
+      url: 'https://example.com/promo1',
     },
     {
       id: '2',
-      image: 'https://picsum.photos/800/400?random=2',
-      url: 'https://play-lh.googleusercontent.com/1-hPxafOxdYpYZEOKzNIkSP43HXCNftVJVttoo4ucl7rsMASXW3Xr6GlXURCubE1tA=w7680-h4320-rw',
+      localSource: require('./assets/nestJS.webp'),
+      url: 'https://example.com/promo2',
     },
     {
       id: '3',
-      image: 'https://picsum.photos/800/400?random=3',
-      url: 'https://play-lh.googleusercontent.com/1-hPxafOxdYpYZEOKzNIkSP43HXCNftVJVttoo4ucl7rsMASXW3Xr6GlXURCubE1tA=w7680-h4320-rw',
+      localSource: require('./assets/nestJS.webp'),
+      url: 'https://example.com/promo3',
     },
     {
       id: '4',
-      image: 'https://picsum.photos/800/400?random=4',
-      url: 'https://play-lh.googleusercontent.com/1-hPxafOxdYpYZEOKzNIkSP43HXCNftVJVttoo4ucl7rsMASXW3Xr6GlXURCubE1tA=w7680-h4320-rw',
+      localSource: require('./assets/nestJS.webp'), // fallback si no tienes 4
+      url: 'https://example.com/promo4',
     },
   ];
 
   return (
     <View style={styles.container}>
-      <Text>Device Info: {JSON.stringify(getDeviceInfo())}</Text>
+      <Text style={styles.infoText}>
+        Device Info: {JSON.stringify(getDeviceInfo())}
+      </Text>
+
       <Text style={styles.title}>Secure Storage</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Key"
@@ -83,12 +88,18 @@ export default function App() {
         onChangeText={setValue}
         secureTextEntry
       />
+
       <Button title="Save" onPress={handleSave} />
       <Button title="Load" onPress={handleLoad} />
+
       <Text style={styles.result}>{result}</Text>
-      <Text>Connection: {JSON.stringify(connectionInfo)}</Text>
+
+      <Text style={styles.infoText}>
+        Connection: {JSON.stringify(connectionInfo)}
+      </Text>
 
       <Item title="hola" caption="hola undo denuevo" />
+
       <BubbleMessage variant="me">
         <Text>Hola mundo (mensaje mío)</Text>
       </BubbleMessage>
@@ -96,7 +107,9 @@ export default function App() {
         <Text>Hola mundo (recordatorio)</Text>
       </BubbleMessage>
 
-      <BannerCarousel banners={exampleBanners} testID="example-carousel" />
+      <View style={styles.carouselContainer}>
+        <Carousel data={exampleBanners} testID="example-carousel" />
+      </View>
     </View>
   );
 }
@@ -105,24 +118,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: 40,
+    paddingHorizontal: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  infoText: {
+    fontSize: 12,
+    color: '#666',
+    marginVertical: 8,
+    textAlign: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginVertical: 20,
-    textAlign: 'center',
   },
   input: {
-    width: '80%',
+    width: '100%',
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
+    padding: 12,
     marginBottom: 10,
-    borderRadius: 5,
+    borderRadius: 8,
+    backgroundColor: '#fff',
   },
   result: {
     marginTop: 20,
     fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+  },
+  carouselContainer: {
+    width: '100%',
+    marginTop: 30,
+    height: 200, // Ajusta según el tamaño de tus banners
   },
 });

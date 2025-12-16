@@ -1,64 +1,73 @@
 import { render, fireEvent } from '@testing-library/react-native';
-import { BannerCarousel } from '../../../components/molecules/banner-carousel';
+import { Linking } from 'react-native';
+import {
+  Carousel,
+  type CarouselItem,
+} from '../../../components/molecules/banner-carousel/banner-carousel';
 
-describe('BannerCarousel', () => {
-  const banners = [
-    { id: '1', image: 'img1', url: 'url1' },
-    { id: '2', image: 'img2', url: 'url2' },
-    { id: '3', image: 'img3', url: 'url3' },
+jest.spyOn(Linking, 'openURL').mockImplementation(jest.fn());
+
+describe('Carousel', () => {
+  const fallback = require('../../../assets/nestJS.webp'); // Ajusta la ruta si es necesario
+
+  const mockData: CarouselItem[] = [
+    {
+      id: '1',
+      remoteUrl: 'https://example.com/banner1.jpg',
+      url: 'https://promo1.com',
+      defaultSource: fallback,
+    },
+    {
+      id: '2',
+      localSource: fallback,
+      url: 'https://promo2.com',
+    },
+    {
+      id: '3',
+      remoteUrl: 'https://example.com/banner3.jpg',
+      url: 'https://promo3.com',
+    },
   ];
 
-  const baseId = 'banner-carousel';
-
-  it('renderiza todos los banners', () => {
-    const { getByTestId } = render(<BannerCarousel banners={banners} />);
-
-    banners.forEach((banner) => {
-      const bannerContainer = getByTestId(`${baseId}-banner-${banner.id}`);
-      expect(bannerContainer).toBeTruthy();
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('renderiza el ScrollView horizontal', () => {
-    const { getByTestId } = render(<BannerCarousel banners={banners} />);
-    const scrollView = getByTestId(`${baseId}-scrollview`);
-    expect(scrollView).toBeTruthy();
+  it('no renderiza nada si data está vacío o undefined', () => {
+    const { queryByTestId } = render(<Carousel data={[]} />);
+    expect(queryByTestId('carousel')).toBeNull();
+
+    const { queryByTestId: queryUndefined } = render(
+      <Carousel data={undefined as any} />
+    );
+    expect(queryUndefined('carousel')).toBeNull();
   });
 
-  it('simula scroll horizontal', () => {
-    const { getByTestId } = render(<BannerCarousel banners={banners} />);
-    const scrollView = getByTestId(`${baseId}-scrollview`);
+  it('renderiza todos los items cuando hay data', () => {
+    const { getAllByTestId } = render(<Carousel data={mockData} />);
+    const items = getAllByTestId(/carousel-item-/);
+    expect(items).toHaveLength(mockData.length);
+  });
 
-    fireEvent.scroll(scrollView, {
+  it('usa testID personalizado', () => {
+    const { getByTestId } = render(
+      <Carousel data={mockData} testID="my-awesome-carousel" />
+    );
+    expect(getByTestId('my-awesome-carousel')).toBeTruthy();
+  });
+
+  it('permite scroll horizontal y snap', () => {
+    const { getByTestId } = render(<Carousel data={mockData} />);
+    const flatList = getByTestId('carousel');
+
+    fireEvent.scroll(flatList, {
       nativeEvent: {
-        contentOffset: { x: 320, y: 0 },
-        contentSize: { width: 1000, height: 200 },
-        layoutMeasurement: { width: 300, height: 200 },
+        contentOffset: { x: 400 },
+        contentSize: { width: 1500, height: 200 },
+        layoutMeasurement: { width: 375, height: 200 },
       },
     });
 
-    expect(scrollView).toBeTruthy();
-  });
-
-  it('no renderiza nada si banners es undefined o vacío', () => {
-    const { queryByTestId } = render(<BannerCarousel />);
-    expect(queryByTestId('banner-carousel-container')).toBeNull();
-
-    const { queryByTestId: queryEmpty } = render(
-      <BannerCarousel banners={[]} />
-    );
-    expect(queryEmpty('banner-carousel-container')).toBeNull();
-  });
-
-  it('aplica baseId correctamente en testID', () => {
-    const { getByTestId } = render(
-      <BannerCarousel
-        banners={[{ id: '1', image: 'img', url: 'url' }]}
-        testID="my-carousel"
-      />
-    );
-    expect(getByTestId('my-carousel-container')).toBeTruthy();
-    expect(getByTestId('my-carousel-scrollview')).toBeTruthy();
-    expect(getByTestId('my-carousel-banner-1')).toBeTruthy();
+    expect(flatList).toBeTruthy();
   });
 });
