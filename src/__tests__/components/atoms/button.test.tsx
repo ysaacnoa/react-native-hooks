@@ -1,6 +1,7 @@
 import { render, fireEvent } from '@testing-library/react-native';
 import { Button } from '../../../components/atoms/button';
 import { theme } from '../../../theme';
+import { Text } from 'react-native';
 
 describe('Button', () => {
   it('renderiza el label correctamente', () => {
@@ -52,5 +53,67 @@ describe('Button', () => {
     );
     fireEvent.press(getByRole('button'));
     expect(onPressMock).not.toHaveBeenCalled();
+  });
+
+  it('aplica estilos variant success', () => {
+    const { getByRole, getByText } = render(
+      <Button label="Success" variant="success" />
+    );
+
+    expect(getByRole('button')).toHaveStyle({
+      backgroundColor: theme.colors.success,
+    });
+
+    expect(getByText('Success')).toHaveStyle({
+      color: theme.colors.white,
+    });
+  });
+
+  it('aplica estilos variant danger', () => {
+    const { getByRole } = render(<Button label="Danger" variant="danger" />);
+
+    expect(getByRole('button')).toHaveStyle({
+      backgroundColor: theme.colors.danger,
+    });
+  });
+
+  it('renderiza icono y label correctamente', () => {
+    const IconMock = <Text testID="icon">🔥</Text>;
+
+    const { getByTestId, getByText } = render(
+      <Button label="Icon Button" iconChild={IconMock} />
+    );
+
+    expect(getByTestId('icon')).toBeTruthy();
+    expect(getByText('Icon Button')).toBeTruthy();
+  });
+
+  it('expone correctamente propiedades de accesibilidad', () => {
+    const { getByRole } = render(<Button label="Accesible" />);
+
+    const button = getByRole('button');
+
+    expect(button.props.accessibilityRole).toBe('button');
+    expect(button.props.accessibilityLabel).toBe('Accesible');
+  });
+
+  it('marca accessibilityState.disabled cuando está disabled', () => {
+    const { getByRole } = render(<Button label="Disabled" disabled />);
+
+    expect(getByRole('button').props.accessibilityState).toEqual({
+      disabled: true,
+    });
+  });
+
+  it('usa testID por defecto', () => {
+    const { getByTestId } = render(<Button label="Default ID" />);
+    expect(getByTestId('button-touchable')).toBeTruthy();
+  });
+
+  it('usa testID personalizado', () => {
+    const { getByTestId } = render(
+      <Button label="Custom ID" testID="my-button" />
+    );
+    expect(getByTestId('my-button')).toBeTruthy();
   });
 });
