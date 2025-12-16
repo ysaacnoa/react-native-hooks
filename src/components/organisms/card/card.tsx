@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { theme } from '../../../theme';
+import { withOpacity } from '../../../shared/opacity';
 
 interface CardProps {
   title: string;
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: withOpacity(theme.colors.primary, 0.2),
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: theme.spacing.md,

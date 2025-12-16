@@ -3,6 +3,7 @@ import {
   type TextInputProps,
   TouchableOpacity,
   Text,
+  View,
   StyleSheet,
 } from 'react-native';
 import type { ReactNode } from 'react';
@@ -89,10 +90,10 @@ export const InputText = ({
       focused={focused}
       error={error}
       right={
-        <>
+        <View style={style.rightButtons}>
           {passwordToggle}
           {clearButton}
-        </>
+        </View>
       }
     >
       <InputBase
@@ -115,5 +116,9 @@ const style = StyleSheet.create({
   defaultClear: {
     fontSize: 20,
     color: '#666666',
+  },
+  rightButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
